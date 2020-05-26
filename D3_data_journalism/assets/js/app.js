@@ -1,6 +1,8 @@
+//Define SVG
 var svgWidth = 1100;
 var svgHeight = 500;
 
+//Define Margin
 var margin = {
   top: 40,
   right: 40,
@@ -11,7 +13,7 @@ var margin = {
 var width = svgWidth - margin.left - margin.right;
 var height = svgHeight - margin.top - margin.bottom;
 
-// Create an SVG wrapper, append an SVG group that will hold our chart, and shift the latter by left and top margins.
+
 var svg = d3.select(".chart")
   .append("svg")
   .attr("width", svgWidth)
@@ -20,22 +22,20 @@ var svg = d3.select(".chart")
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-// Import Data
+//Import data
 (async function(){
   var stateData = await d3.csv("assets/data/data.csv").catch(function(error) {
     console.log(error);
   });
 
 
-    // Step 1: Parse Data/Cast as numbers
-    // ==============================
+    // Parse Data
     stateData.forEach(function(data) {
       data.poverty = +data.poverty;
       data.healthcare = +data.healthcare;
     });
 
-    // Step 2: Create scale functions
-    // ==============================
+    // Create X and Y scales
     var xLinearScale = d3.scaleLinear()
       .domain([9, d3.max(stateData, d => d.poverty)])
       .range([0, width]);
@@ -44,13 +44,11 @@ var chartGroup = svg.append("g")
       .domain([4, d3.max(stateData, d => d.healthcare)])
       .range([height, 0]);
 
-    // Step 3: Create axis functions
-    // ==============================
+    // Create axis functions
     var bottomAxis = d3.axisBottom(xLinearScale);
     var leftAxis = d3.axisLeft(yLinearScale);
 
-    // Step 4: Append Axes to the chart
-    // ==============================
+    //Append Axes
     chartGroup.append("g")
       .attr("transform", `translate(0, ${height})`)
       .call(bottomAxis);
@@ -58,8 +56,7 @@ var chartGroup = svg.append("g")
     chartGroup.append("g")
       .call(leftAxis);
 
-    // Step 5: Create Circles
-    // ==============================
+    //Create Circles
     var circlesGroup = chartGroup.selectAll("circle")
     .data(stateData)
     .enter()
@@ -99,4 +96,17 @@ var chartGroup = svg.append("g")
       .attr("transform", `translate(${width / 2}, ${height + margin.top + 30})`)
       .attr("class", "axisText")
       .text("Poverty (%)");
+
+      var toolTip = d3.select("body").append("div")
+      .attr("class", "tooltip");
+  
+    //Add a mouseover event
+    circlesGroup.on("mouseover", function(d, i) {
+      toolTip.style("display", "block");
+      toolTip.html(`State:${stateData.state}`);
+    })
+    
+      .on("mouseout", function() {
+        toolTip.style("display", "none");
+      });
 })()
