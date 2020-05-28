@@ -100,7 +100,7 @@ var chartGroup = svg.append("g")
       var toolTip = d3.select("body").append("div")
       .attr("class", "tooltip");
   
-    //Add a mouseover event
+    //Add mouseover event
     circlesGroup.on("mouseover", function(d, i) {
       toolTip.style("display", "block");
       toolTip.html(`State:${stateData.state}`);
